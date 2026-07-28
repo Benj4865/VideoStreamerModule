@@ -12,15 +12,15 @@ client.Connect(MODULE_NAME);
 Console.WriteLine($"{MODULE_NAME} is running...");
 
 // init camera
-var camera = new VideoCapture(0, VideoCaptureAPIs.DSHOW);
+var camera = new VideoCapture(1, VideoCaptureAPIs.DSHOW);
 
 if (!camera.IsOpened())
 {
     throw new InvalidOperationException("The webcam coul not be opened");
 }
 
-camera.Set(VideoCaptureProperties.FrameWidth, 640);
-camera.Set(VideoCaptureProperties.FrameHeight, 480);
+camera.Set(VideoCaptureProperties.FrameWidth, 1920);
+camera.Set(VideoCaptureProperties.FrameHeight, 1080);
 camera.Set(VideoCaptureProperties.Fps, 30);
 
 

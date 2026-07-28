@@ -23,3 +23,4 @@ C:\Users\bena3\VSCode_Repos\VideoStreamerModule\obj\Debug\net10.0\refint\VideoSt
 C:\Users\bena3\VSCode_Repos\VideoStreamerModule\obj\Debug\net10.0\VideoStreamerModule.pdb
 C:\Users\bena3\VSCode_Repos\VideoStreamerModule\obj\Debug\net10.0\VideoStreamerModule.genruntimeconfig.cache
 C:\Users\bena3\VSCode_Repos\VideoStreamerModule\obj\Debug\net10.0\ref\VideoStreamerModule.dll
+C:\Users\bena3\VSCode_Repos\VideoStreamerModule\obj\Debug\net10.0\VideoStreamerModule.sourcelink.json
