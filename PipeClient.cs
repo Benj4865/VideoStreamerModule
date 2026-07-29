@@ -1,4 +1,5 @@
 using System.IO.Pipes;
+using Microsoft.VisualBasic;
 
 public class TartaMessage(string type, string subCategory, string sender, string recipient, string payload) : EventArgs
 {
@@ -8,40 +9,59 @@ public class TartaMessage(string type, string subCategory, string sender, string
     public string Recipient { get; } = recipient;
     public string Payload { get; } = payload;
 }
+
+public class PipeMessageEventArgs(string pipeName, TartaMessage message) : EventArgs
+{
+    public string PipeName { get; } = pipeName;
+    public TartaMessage TartaMessage { get; } = message;
+}
+
+public class Connection(NamedPipeClientStream pipe, StreamReader reader, StreamWriter writer)
+{
+    public NamedPipeClientStream? Pipe { get; set; } = pipe;
+    public StreamReader? Reader { get; set; } = reader;
+    public StreamWriter? Writer { get; set; } = writer;
+
+}
+
+
 public class PipeClient
 {
-    private NamedPipeClientStream? _pipe;
-    private StreamReader? _reader;
-    private StreamWriter? _writer;
-    public event EventHandler<TartaMessage>? MessageReceived;
 
-    public void Connect(string moduleName)
+    private Dictionary<string, Connection> connections = new();
+
+    public event EventHandler<PipeMessageEventArgs>? MessageReceived;
+
+    public void Connect(string moduleName, string pipeName = "TartaMessagePipe")
     {
-        _pipe = new NamedPipeClientStream(
+        var pipe = new NamedPipeClientStream(
             ".",
-            "TartaMessagePipe",
+            pipeName,
             PipeDirection.InOut,
             PipeOptions.Asynchronous);
 
-        _pipe.Connect();
+        pipe.Connect();
 
-        _writer = new StreamWriter(_pipe)
+        var writer = new StreamWriter(pipe)
         {
             AutoFlush = true
         };
 
-        _writer.WriteLine(moduleName);
+        writer.WriteLine(moduleName);
 
-        // Listen (forever) for messages from the server
-        _reader = new StreamReader(_pipe);
-        _ = Task.Run(() => ListenForMessages());
+        var reader = new StreamReader(pipe);
+        var connection = new Connection(pipe, reader, writer);
+
+        // Adding the connection object as a key pair val in connection with name being the key
+        connections[pipeName] = connection;
+        _ = Task.Run(() => ListenForMessages(pipeName, connection));
     }
 
-    private void ListenForMessages()
+    private void ListenForMessages(string pipeName, Connection connection)
     {
         while (true)
-        { 
-            var recievedLine = _reader.ReadLine();
+        {
+            var recievedLine = connection.Reader.ReadLine();
             if (recievedLine == null)
                 continue;
 
@@ -50,7 +70,7 @@ public class PipeClient
                 // Extracting the message propertier and putting them into an object
                 var receivedMessage = System.Text.Json.JsonSerializer.Deserialize<TartaMessage>(recievedLine);
                 //Invoking the eventhandler by raising an event
-                MessageReceived?.Invoke(this, receivedMessage);
+                MessageReceived?.Invoke(this, new PipeMessageEventArgs(pipeName, receivedMessage));
             }
             catch (Exception ex)
             {
@@ -59,13 +79,13 @@ public class PipeClient
         }
     }
 
-    public void SendMessage(string type, string subCategory, string sender, string recipient, string payload)
+    public void SendMessage(string type, string subCategory, string sender, string recipient, string payload, string pipeName = "TartaMessagePipe")
     {
-        if (_writer == null)
+        if (!connections.TryGetValue(pipeName, out var connection))
             throw new InvalidOperationException("Not connected.");
 
         var message = new TartaMessage(type, subCategory, sender, recipient, payload.Replace("\n", "").Replace("\r", ""));
         var json_formatted_message = System.Text.Json.JsonSerializer.Serialize(message);
-        _writer.WriteLine(json_formatted_message);
+        connection.Writer.WriteLine(json_formatted_message);
     }
 }
