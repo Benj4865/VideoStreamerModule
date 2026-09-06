@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("VideoStreamerModule")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+317151a752ee9cb562bf558479e3ea1d9c6509da")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7a4a0f6a19e8d672c5dc0ee7bdd1817df5b7a441")]
 [assembly: System.Reflection.AssemblyProductAttribute("VideoStreamerModule")]
 [assembly: System.Reflection.AssemblyTitleAttribute("VideoStreamerModule")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
